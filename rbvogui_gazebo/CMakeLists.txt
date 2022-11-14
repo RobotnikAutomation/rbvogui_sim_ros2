@@ -1,38 +1,23 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(rbvogui_gazebo)
 
-find_package(catkin REQUIRED COMPONENTS
-    roscpp
-    std_srvs
-    std_msgs
-    tf
-    gazebo_ros
+find_package(ament_cmake REQUIRED)
+
+install(DIRECTORY launch rviz worlds models
+  DESTINATION share/${PROJECT_NAME}
 )
 
+ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDS})
 
-###################################
-## catkin specific configuration ##
-###################################
-catkin_package(
+if(BUILD_TESTING)
+  find_package(ament_cmake_pytest REQUIRED)
 
-)
+  ament_add_pytest_test(
+    rbvogui_urdf_xacro
+    test/test_urdf_xacro.py
+    TIMEOUT 30
+  )
 
-###########
-## Build ##
-###########
+endif()
 
-
-include_directories(
-  ${catkin_INCLUDE_DIRS}
-)
-
-
-#############
-## Install ##
-#############
-
-
-install(
-  DIRECTORY launch worlds
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-)
+ament_package()

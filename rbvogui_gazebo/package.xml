@@ -1,41 +1,36 @@
 <?xml version="1.0"?>
-<package>
+<?xml-model
+   href="http://download.ros.org/schema/package_format3.xsd"
+   schematypens="http://www.w3.org/2001/XMLSchema"?>
+
+<package format="3">
   <name>rbvogui_gazebo</name>
-  <version>0.0.0</version>
-  <description>The rbvogui_gazebo package</description>
+  <version>0.9.0</version>
+  <description>Gazebo simulation for Robotnik RB Vogui Robot</description>
+  <maintainer email="rmartin@robotnik.es">Rafael Martin</maintainer>
 
-  <maintainer email="alvaro@todo.todo">alvaro</maintainer>
-  <maintainer email="asoriano@robotnik.es">asoriano</maintainer>
-  <maintainer email="jgomez@robotnik.es">asoriano</maintainer>
+  <license>BSD-2-Clause</license>
 
-  <license>TODO</license>
+  <url type="website">https://robotnik.eu/products/mobile-robots/rb-vogui-en</url>
+  <url type="bugtracker">https://github.com/RobotnikAutomation/rbvogui_sim/issues</url>
+  <url type="repository">https://github.com/RobotnikAutomation/rbvogui_sim</url>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <build_depend>roscpp</build_depend>
-  <build_depend>std_srvs</build_depend>
-  <build_depend>std_msgs</build_depend>
-  <build_depend>tf</build_depend>
-  <build_depend>gazebo_ros</build_depend>
-  <build_depend>rbvogui_control</build_depend>
-  <build_depend>rbvogui_description</build_depend>
-  <build_depend>xacro</build_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>nav2_common</exec_depend>
 
-  <run_depend>roscpp</run_depend>
-  <run_depend>std_srvs</run_depend>
-  <run_depend>std_msgs</run_depend>
-  <run_depend>tf</run_depend>
-  <run_depend>gazebo_ros</run_depend>
-  <run_depend>rbvogui_control</run_depend>
-  <run_depend>rbvogui_description</run_depend>
-  <run_depend>xacro</run_depend>
-  <run_depend>hector_gazebo_plugins</run_depend>
-  <run_depend>gazebo_plugins</run_depend>
+  <test_depend>ament_cmake_pytest</test_depend>
+  <test_depend>liburdfdom-tools</test_depend>
+  <test_depend>xacro</test_depend>
 
   <export>
- 	  <gazebo_ros plugin_path="${prefix}/lib" gazebo_media_path="${prefix}" />
+    <build_type>ament_cmake</build_type>
+
+    <!--gazebo_ros plugin_path="${prefix}/lib" gazebo_media_path="${prefix}" /-->
     <gazebo_ros gazebo_model_path="${prefix}/models"/>
     <gazebo_ros gazebo_media_path="${prefix}/worlds"/>
   </export>
-
 </package>

@@ -1,21 +1,31 @@
 <?xml version="1.0"?>
-<package format="2">
+<?xml-model
+   href="http://download.ros.org/schema/package_format3.xsd"
+   schematypens="http://www.w3.org/2001/XMLSchema"?>
+
+<package format="3">
   <name>rbvogui_sim</name>
-  <version>0.0.0</version>
-  <description>The rbvogui_sim package</description>
+  <version>0.9.0</version>
+  <description>Simulation for Robotnik RB Vogui Robot</description>
+  <maintainer email="rmartin@robotnik.es">Rafael Martin</maintainer>
 
-  <maintainer email="alvaro@todo.todo">alvaro</maintainer>
-  <maintainer email="asoriano@robotnik.es">asoriano</maintainer>
-  <maintainer email="jgomez@robotnik.es">asoriano</maintainer>
+  <license>BSD-2-Clause</license>
 
-  <license>TODO</license>
+  <url type="website">https://robotnik.eu/products/mobile-robots/rb-vogui-en</url>
+  <url type="bugtracker">https://github.com/RobotnikAutomation/rbvogui_sim/issues</url>
+  <url type="repository">https://github.com/RobotnikAutomation/rbvogui_sim</url>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+
+  <test_depend>ament_cmake_pytest</test_depend>
+  <test_depend>liburdfdom-tools</test_depend>
+  <test_depend>xacro</test_depend>
 
   <export>
-
-    <metapackage/>
-
+    <build_type>ament_cmake</build_type>
   </export>
-  
 </package>
