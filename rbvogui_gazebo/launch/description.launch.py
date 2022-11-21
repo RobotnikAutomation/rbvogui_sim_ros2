@@ -45,8 +45,8 @@ def read_params(ld : launch.LaunchDescription):
 
     ld.add_action(launch.actions.DeclareLaunchArgument(
         name='controllers_file',
-        description='Controllers file.',
-        default_value='/home/rafaelm/git/robotnikautomation/FRAUNHOFER_RBVOGUI/rbvogui_sim/rbvogui_gazebo/config/controllers.yaml')
+        description='ROS 2 controller file.',
+        default_value=[get_package_share_directory('rbvogui_gazebo'), '/config/base_controller.yaml'])
     )
 
     ld.add_action(launch.actions.DeclareLaunchArgument(
@@ -58,7 +58,7 @@ def read_params(ld : launch.LaunchDescription):
     # Parse the launch options
     return {
         'use_sim_time': use_sim_time,
-        'robot_description_path': os.path.join(get_package_share_directory('rbvogui_description'), 'robot', 'test.urdf.xacro'),
+        'robot_description_path': os.path.join(get_package_share_directory('rbvogui_description'), 'robots', 'rbvogui_std.urdf.xacro'),
         'robot_id': robot_id,
         'controllers_file': controllers_file,
     }
@@ -84,9 +84,26 @@ def generate_launch_description():
             params['robot_description_path'],
             " robot_id:=", params['robot_id'],
             " prefix:=",   params['robot_id'], "_",
+            " kinematics:=omni",
+            " load_kinematics_file:=false",
+            " gpu:=false",
+            " publish_bf:=true",
+            " hq:=true",
+            " launch_arm:=false",
+            " arm_manufacturer:=false",
+            " arm_model:=false",
+            " launch_gripper:=false" ,
+            " gripper_manufacturer:=false",
+            " gripper_model:=false",
+            " launch_lift:=false",
+            " lift_manufacturer:=false",
+            " lift_model:=false",
             " config_controllers:=", config_file_rewritten,
         ]
     )
+
+    # Create parameter 
+    robot_description_param = launch_ros.descriptions.ParameterValue(robot_description_content, value_type=str)
 
     robot_state_publisher = launch_ros.actions.Node(
         package='robot_state_publisher',
@@ -95,8 +112,9 @@ def generate_launch_description():
         output='screen',
         parameters=[{
             'use_sim_time': params['use_sim_time'],
-            'robot_description': robot_description_content,
+            'robot_description': robot_description_param,
             'publish_frequency': 100.0,
+            'frame_prefix': ''
         }],
     )
 

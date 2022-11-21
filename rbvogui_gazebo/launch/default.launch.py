@@ -31,18 +31,17 @@ from ament_index_python.packages import get_package_share_directory
 #from robotnik_common.launch import RewrittenYaml
 
 # Environment variables
-# CONFIG_FILE: Path to override the default configuration file (e.g. /home/user/config.yaml)
-# PORT:        Device port (e.g. /dev/ttyUSB0)
-# BAUD:        Device baud rate (e.g. 115200)
-# NAME:        Name of the node.
-# NAMESPACE:   Namespace of the node.
-# FRAME_ID:    Frame id of the sensor. (e.g. vectornav_link)
+#  USE_SIM_TIME: Use simulation (Gazebo) clock if true
+#  NAMESPACE: Namespace of the node stack.
+#  ROBOT_ID: Frame id of the robot. (e.g. vectornav_link).
+#  WORLD: World to load.
 
 def read_params(ld : launch.LaunchDescription):
-    use_sim_time = launch.substitutions.LaunchConfiguration('use_sim_time')
     environment = launch.substitutions.LaunchConfiguration('environment')
+    use_sim_time = launch.substitutions.LaunchConfiguration('use_sim_time')
     namespace = launch.substitutions.LaunchConfiguration('namespace')
     robot_id = launch.substitutions.LaunchConfiguration('robot_id')
+    world_name = launch.substitutions.LaunchConfiguration('world_name')
     world = launch.substitutions.LaunchConfiguration('world')
 
     # Declare the launch options
@@ -63,19 +62,25 @@ def read_params(ld : launch.LaunchDescription):
     ld.add_action(launch.actions.DeclareLaunchArgument(
         name='namespace',
         description='Namespace of the node.',
-        default_value=robot_id)
-    )
-
-    ld.add_action(launch.actions.DeclareLaunchArgument(
-        name='robot_id',
-        description='Frame id of the sensor. (e.g. vectornav_link).',
         default_value='robot')
     )
 
     ld.add_action(launch.actions.DeclareLaunchArgument(
+        name='robot_id',
+        description='Frame id of the sensor. (e.g. robot).',
+        default_value='robot')
+    )
+
+    ld.add_action(launch.actions.DeclareLaunchArgument(
+        name='world_name',
+        description='Name of the world to load.',
+        default_value='willow_garage')
+    )
+
+    ld.add_action(launch.actions.DeclareLaunchArgument(
         name='world',
-        description='World to load.',
-        default_value=os.path.join(get_package_share_directory('rbvogui_gazebo'), 'worlds', 'demo.world'))
+        description='World to load path.',
+        default_value=[get_package_share_directory('rbvogui_gazebo'), '/worlds/', world_name, '.world'])
     )
     
     # Parse the launch options
@@ -118,24 +123,28 @@ def generate_launch_description():
 
     params = read_params(ld)
 
-    #gzserver_cmd = launch.actions.ExecuteProcess(
-    #  cmd=['gazebo', '--verbose',
-    #       '-s', 'libgazebo_ros_init.so',
-    #       '-s', 'libgazebo_ros_factory.so'], #, params['world'],],
-    #  output='screen',
-    #)
-
     gzserver_cmd = launch.actions.IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(gazebo_dir, 'gazebo.launch.py'),
+            os.path.join(gazebo_dir, 'gzserver.launch.py')
         ),
         launch_arguments={
             'verbose': 'false',
             'world': params['world'],
-            'use_sim_time': params['use_sim_time'],
+            'paused': 'false',
             'physics': 'ode',
             'init': 'true',
             'factory': 'true',
+            'force_system': 'true',
+            'params_file': '/home/rafaelm/workspaces/FRAUNHOFER_RBVOGUI/install/share/rbvogui_gazebo/config/gazebo.yaml',
+        }.items(),
+    )
+
+    gzclient_cmd = launch.actions.IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(gazebo_dir, 'gzclient.launch.py')
+        ),
+        launch_arguments={
+            'verbose': 'false',
         }.items(),
     )
 
@@ -165,32 +174,19 @@ def generate_launch_description():
         executable="spawner",
         arguments=["joint_state_broadcaster", "--controller-manager", ["/", params['namespace'], "/controller_manager"]],
     )
-    
-    diff_drive_spawner = launch_ros.actions.Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=["diffbot_base_controller", "--controller-manager",  ["/", params['namespace'], "/controller_manager"]],
-    )
 
-    fix_steer_spawner = launch_ros.actions.Node(
+    base_controller_spawner = launch_ros.actions.Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["joint_trajectory_controller", "--controller-manager", ["/", params['namespace'], "/controller_manager"]],
-    )
-
-    omni_controller_spawner = launch_ros.actions.Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=["omnidrive_base_controller", "--controller-manager", ["/", params['namespace'], "/controller_manager"]],
+        arguments=["robotnik_base_controller", "--controller-manager", ["/", params['namespace'], "/controller_manager"]],
     )
 
     ld.add_action(launch_ros.actions.PushRosNamespace(namespace=params['namespace']))
     ld.add_action(gzserver_cmd)
+    ld.add_action(gzclient_cmd)
     ld.add_action(robot_state_publisher_cmd)
     ld.add_action(spawn_cmd)
     ld.add_action(joint_state_broadcaster_spawner)
-    #ld.add_action(diff_drive_spawner)
-    #ld.add_action(fix_steer_spawner)
-    ld.add_action(omni_controller_spawner)
+    ld.add_action(base_controller_spawner)
 
     return ld
