@@ -3,7 +3,7 @@ project(rbvogui_gazebo)
 
 find_package(ament_cmake REQUIRED)
 
-install(DIRECTORY launch rviz worlds models
+install(DIRECTORY config launch rviz worlds models
   DESTINATION share/${PROJECT_NAME}
 )
 
