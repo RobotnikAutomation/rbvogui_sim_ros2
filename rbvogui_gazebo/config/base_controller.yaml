@@ -23,11 +23,16 @@ robotnik_base_controller: # Double ackermann
 
     # Odometry:
     odom_topic: ~/odom
+    set_odometry_service: ~/set_odometry
     odom_frame_id: robot_odom
     base_frame_id: robot_base_footprint
     enable_odom_tf: true
     odom_publish_rate: 100.0
     tf_publish_rate: 100.0
+
+    # Imu
+    imu_topic: /robot/imu/data
+    imu_timeout: 0.2
 
     # Command Velocity:
     cmd_vel_topic: ~/cmd_vel
@@ -77,8 +82,8 @@ robotnik_base_controller: # Double ackermann
     steering_error: 0.15
 
     # To avoid skidding
-    center_error_skidding: 0.50
-    steering_error_skidding: 0.25
+    center_error_skidding: 10.00
+    steering_error_skidding: 0.75
 
     # Joints:
     front_right:
@@ -117,7 +122,7 @@ robotnik_base_controller: # Double ackermann
       limits:
         steering:
           pos:  {has_limit: true, min: -2.8, max: 2.8}
-          vel:  {has_limit: true, min: -1.0, max: 1.0} #
+          vel:  {has_limit: true, min: -1.0, max: 1.0}
           acc:  {has_limit: true, min: -1.0, max: 1.0} #
           jerk: {has_limit: true, min: -1.0, max: 1.0} #
         driving:
