@@ -109,6 +109,8 @@ def read_params(ld : launch.LaunchDescription):
 
         if 'WORLD' in os.environ:
             ret['world'] = os.environ['WORLD']
+        elif 'WORLD_NAME' in os.environ:
+            ret['world'] = [get_package_share_directory('rbvogui_gazebo'), '/worlds/', os.environ['WORLD_NAME'], '.world']
         else: ret['world'] = world
 
     return ret
@@ -135,7 +137,7 @@ def generate_launch_description():
             'init': 'true',
             'factory': 'true',
             'force_system': 'true',
-            'params_file': '/home/rafaelm/workspaces/FRAUNHOFER_RBVOGUI/install/share/rbvogui_gazebo/config/gazebo.yaml',
+            'params_file': [get_package_share_directory('rbvogui_gazebo'), '/config/gazebo.yaml'],
         }.items(),
     )
 
