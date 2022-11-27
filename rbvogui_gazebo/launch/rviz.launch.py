@@ -36,6 +36,7 @@ from robotnik_common.launch import RewrittenYaml
 #  ROBOT_ID: Frame id of the robot. (e.g. vectornav_link).
 #  RVIZ_CONFIG: Absolute path to the rviz config file.
 #  RVIZ_CONFIG_FILE: Name of the rviz config file.
+#  RVIZ_FIXED_FRAME: Fixed frame of the rviz config file.
 
 def read_params(ld : launch.LaunchDescription):
     environment = launch.substitutions.LaunchConfiguration('environment')
@@ -43,6 +44,7 @@ def read_params(ld : launch.LaunchDescription):
     robot_id = launch.substitutions.LaunchConfiguration('robot_id')
     rviz_config = launch.substitutions.LaunchConfiguration('rviz_config')
     rviz_config_file = launch.substitutions.LaunchConfiguration('rviz_config_file')
+    rviz_fixed_frame = launch.substitutions.LaunchConfiguration('rviz_fixed_frame')
 
     # Declare the launch options
     ld.add_action(launch.actions.DeclareLaunchArgument(
@@ -75,7 +77,13 @@ def read_params(ld : launch.LaunchDescription):
         description='Absolute path to the rviz config file.',
         default_value=[get_package_share_directory('rbvogui_gazebo'), '/rviz/', rviz_config_file, '.rviz'])
     )
-    
+
+    ld.add_action(launch.actions.DeclareLaunchArgument(
+        name='rviz_fixed_frame',
+        description='Fixed frame of the rviz config file.',
+        default_value=[robot_id, '_odom'])
+    )
+
     # Parse the launch options
     ret = {}
 
@@ -84,6 +92,7 @@ def read_params(ld : launch.LaunchDescription):
         'namespace': namespace,
         'robot_id': robot_id,
         'rviz_config': rviz_config,
+        'rviz_fixed_frame': rviz_fixed_frame,
         }
     
     else:
@@ -100,8 +109,12 @@ def read_params(ld : launch.LaunchDescription):
         if 'RVIZ_CONFIG' in os.environ:
             ret['rviz_config'] = os.environ['RVIZ_CONFIG']
         elif 'RVIZ_CONFIG_FILE' in os.environ:
-            ret['rviz_config'] = [get_package_share_directory('rbvogui_gazebo'), 'rviz', os.environ['RVIZ_CONFIG_FILE'], '.rviz']
+            ret['rviz_config'] = [get_package_share_directory('rbvogui_gazebo'), '/rviz/', os.environ['RVIZ_CONFIG_FILE'], '.rviz']
         else:  ret['rviz_config'] = rviz_config
+
+        if 'RVIZ_FIXED_FRAME' in os.environ:
+            ret['rviz_fixed_frame'] = os.environ['RVIZ_FIXED_FRAME']
+        else:  ret['rviz_fixed_frame'] = rviz_fixed_frame
 
     return ret
 
@@ -117,10 +130,9 @@ def generate_launch_description():
         executable='rviz2',
         name='rviz2',
         output='screen',
-        arguments=['-d', params['rviz_config'], '-f', [params['robot_id'], '_odom']],
+        arguments=['-d', params['rviz_config'], '-f', params['rviz_fixed_frame']],
+        parameters=[{'use_sim_time': True}],
     )
-
-    print(params['rviz_config'])
 
     ld.add_action(launch_ros.actions.PushRosNamespace(namespace=params['namespace']))
     ld.add_action(rviz2_node)
